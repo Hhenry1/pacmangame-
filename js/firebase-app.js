@@ -316,7 +316,7 @@ async function createTournamentRoom() {
         playerCount: 1,
         maxPlayers: 10,
         createdAt: Date.now(),
-        endTime: Date.now() + (10 * 60 * 1000),
+        endTime: 0,
         participants: {
             [currentUser.uid]: {
                 uid: currentUser.uid,
@@ -422,12 +422,19 @@ function openLobbyModal(code, host) {
     const endBtn = document.getElementById("btn-end-tournament");
     const playBtn = document.getElementById("btn-play-tournament-match");
     const leaveBtn = document.getElementById("leave-lobby-btn");
+    const hostStartBtn = document.getElementById("btn-host-start-tournament");
+    const waitingBanner = document.getElementById("btn-waiting-for-host");
 
     if (codeElem) codeElem.textContent = code;
     if (endBtn) endBtn.style.display = host ? "inline-block" : "none";
-    if (playBtn) playBtn.style.display = host ? "none" : "inline-block";
     if (leaveBtn) leaveBtn.style.display = host ? "none" : "inline-block";
+
+    if (hostStartBtn) hostStartBtn.style.display = host ? "inline-block" : "none";
+    if (waitingBanner) waitingBanner.style.display = host ? "none" : "inline-block";
+    if (playBtn) playBtn.style.display = "none";
+
     if (modal) modal.classList.remove("hidden");
+    window.currentRoomStatus = "waiting";
 }
 
 function closeLobbyModalOnly() {
@@ -469,6 +476,32 @@ async function leaveTournamentLobby() {
     currentRoomCode = null;
     isHost = false;
     closeLobbyModalOnly();
+}
+
+async function startTournamentSession() {
+    let code = currentRoomCode;
+    if (!code) {
+        const codeElem = document.getElementById("lobby-room-code");
+        if (codeElem && codeElem.textContent && codeElem.textContent !== "-----") {
+            code = codeElem.textContent.trim().toUpperCase();
+            currentRoomCode = code;
+        }
+    }
+    if (!code) {
+        showToast("Error: No active room code found.");
+        return;
+    }
+    const roomRef = ref(db, `tournaments/${code}`);
+    try {
+        await update(roomRef, {
+            status: "playing",
+            endTime: Date.now() + (10 * 60 * 1000)
+        });
+        showToast("🚀 Tournament STARTED! The 10-minute clock is running!");
+    } catch (err) {
+        console.error("Error starting tournament session:", err);
+        showToast("Failed to start tournament session.");
+    }
 }
 
 async function endTournamentRoom(timeExpired = false) {
@@ -585,13 +618,36 @@ function subscribeToRoomUpdates(code) {
 
         const data = snapshot.val();
         currentRoomEndTime = data.endTime || 0;
+        const wasWaiting = (window.currentRoomStatus === "waiting");
+        window.currentRoomStatus = data.status;
+
         const isActualHost = (currentUser && currentUser.uid === data.hostId);
         const endBtn = document.getElementById("btn-end-tournament");
         const playBtn = document.getElementById("btn-play-tournament-match");
         const leaveBtn = document.getElementById("leave-lobby-btn");
+        const hostStartBtn = document.getElementById("btn-host-start-tournament");
+        const waitingBanner = document.getElementById("btn-waiting-for-host");
+
         if (endBtn) endBtn.style.display = isActualHost ? "inline-block" : "none";
-        if (playBtn) playBtn.style.display = isActualHost ? "none" : "inline-block";
-        if (leaveBtn) leaveBtn.style.display = isActualHost ? "none" : "inline-block";
+        if (leaveBtn) leaveBtn.style.display = !isActualHost ? "inline-block" : "none";
+
+        if (data.status === "waiting") {
+            if (hostStartBtn) hostStartBtn.style.display = isActualHost ? "inline-block" : "none";
+            if (waitingBanner) waitingBanner.style.display = !isActualHost ? "inline-block" : "none";
+            if (playBtn) playBtn.style.display = "none";
+        } else if (data.status === "playing") {
+            if (hostStartBtn) hostStartBtn.style.display = "none";
+            if (waitingBanner) waitingBanner.style.display = "none";
+            if (playBtn) playBtn.style.display = "inline-block";
+
+            const lobbyModal = document.getElementById("lobby-modal");
+            if (wasWaiting && lobbyModal && !lobbyModal.classList.contains("hidden")) {
+                showToast("🚀 Tournament has started! Launching match...");
+                setTimeout(() => {
+                    if (window.startTournamentGame) window.startTournamentGame();
+                }, 1500);
+            }
+        }
 
         const participants = data.participants || {};
         const playersArray = Object.values(participants);
@@ -688,6 +744,13 @@ function startGameStateTracker() {
                     }
                 }
             }
+        } else if (currentRoomCode && currentRoomEndTime === 0) {
+            const lobbyBadge = document.getElementById("lobby-timer-badge");
+            const gameBadge = document.getElementById("game-timer-badge");
+            const gameTimerBox = document.getElementById("tournament-game-timer");
+            if (lobbyBadge) lobbyBadge.textContent = "10:00";
+            if (gameBadge) gameBadge.textContent = "10:00";
+            if (gameTimerBox) gameTimerBox.style.display = "none";
         } else {
             const gameTimerBox = document.getElementById("tournament-game-timer");
             if (gameTimerBox) gameTimerBox.style.display = "none";
@@ -707,3 +770,4 @@ window.startTournamentGame = () => {
     }
 };
 window.closeWinnerModal = closeWinnerModal;
+window.startTournamentSession = startTournamentSession;
