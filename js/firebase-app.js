@@ -641,7 +641,7 @@ function subscribeToRoomUpdates(code) {
             if (playBtn) playBtn.style.display = "inline-block";
 
             const lobbyModal = document.getElementById("lobby-modal");
-            if (wasWaiting && lobbyModal && !lobbyModal.classList.contains("hidden")) {
+            if (!isActualHost && wasWaiting && lobbyModal && !lobbyModal.classList.contains("hidden")) {
                 showToast("🚀 Tournament has started! Launching match...");
                 setTimeout(() => {
                     if (window.startTournamentGame) window.startTournamentGame();
