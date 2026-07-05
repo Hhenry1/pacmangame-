@@ -441,15 +441,14 @@ async function endTournamentRoom() {
     const roomRef = ref(db, `tournaments/${currentRoomCode}`);
     try {
         await update(roomRef, { status: "ended" });
-        setTimeout(async () => {
-            await remove(roomRef);
-        }, 5000);
+        await remove(roomRef);
     } catch (err) {
         console.error("Error ending tournament:", err);
     }
     currentRoomCode = null;
     isHost = false;
     closeLobbyModalOnly();
+    alert("🛑 Tournament ended! Room code invalidated.");
 }
 
 function subscribeToRoomUpdates(code) {
@@ -472,6 +471,12 @@ function subscribeToRoomUpdates(code) {
         }
 
         const data = snapshot.val();
+        const isActualHost = (currentUser && currentUser.uid === data.hostId);
+        const endBtn = document.getElementById("btn-end-tournament");
+        if (endBtn) {
+            endBtn.style.display = isActualHost ? "inline-block" : "none";
+        }
+
         const participants = data.participants || {};
         const playersArray = Object.values(participants);
         
