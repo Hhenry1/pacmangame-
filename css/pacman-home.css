@@ -157,13 +157,16 @@
     border-radius: 25px !important;
     font-weight: 900 !important;
     cursor: pointer !important;
-    display: inline-flex !important;
+    display: inline-flex;
     align-items: center !important;
     gap: 8px !important;
     font-size: 15px !important;
     font-family: sans-serif !important;
     text-shadow: none !important;
     transition: transform 0.2s, box-shadow 0.2s;
+}
+.btn-google.hidden {
+    display: none !important;
 }
 .btn-google span, .btn-google * {
     color: #000000 !important;

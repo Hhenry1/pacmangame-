@@ -139,7 +139,10 @@ function setupAuth() {
 
         if (user) {
             currentUser = user;
-            if (signinBtn) signinBtn.style.display = "none";
+            if (signinBtn) {
+                signinBtn.style.display = "none";
+                signinBtn.classList.add("hidden");
+            }
             if (userProfile) userProfile.style.display = "flex";
             if (userAvatar) userAvatar.src = user.photoURL || "https://api.dicebear.com/7.x/bottts/svg?seed=" + user.uid;
             if (userName) userName.textContent = user.displayName || "Player";
@@ -150,7 +153,10 @@ function setupAuth() {
         } else {
             currentUser = null;
             userHighScore = 0;
-            if (signinBtn) signinBtn.style.display = "flex";
+            if (signinBtn) {
+                signinBtn.style.display = "inline-flex";
+                signinBtn.classList.remove("hidden");
+            }
             if (userProfile) userProfile.style.display = "none";
         }
     });
@@ -389,9 +395,13 @@ function openLobbyModal(code, host) {
     const modal = document.getElementById("lobby-modal");
     const codeElem = document.getElementById("lobby-room-code");
     const endBtn = document.getElementById("btn-end-tournament");
+    const playBtn = document.getElementById("btn-play-tournament-match");
+    const leaveBtn = document.getElementById("leave-lobby-btn");
 
     if (codeElem) codeElem.textContent = code;
     if (endBtn) endBtn.style.display = host ? "inline-block" : "none";
+    if (playBtn) playBtn.style.display = host ? "none" : "inline-block";
+    if (leaveBtn) leaveBtn.style.display = host ? "none" : "inline-block";
     if (modal) modal.classList.remove("hidden");
 }
 
@@ -473,9 +483,11 @@ function subscribeToRoomUpdates(code) {
         const data = snapshot.val();
         const isActualHost = (currentUser && currentUser.uid === data.hostId);
         const endBtn = document.getElementById("btn-end-tournament");
-        if (endBtn) {
-            endBtn.style.display = isActualHost ? "inline-block" : "none";
-        }
+        const playBtn = document.getElementById("btn-play-tournament-match");
+        const leaveBtn = document.getElementById("leave-lobby-btn");
+        if (endBtn) endBtn.style.display = isActualHost ? "inline-block" : "none";
+        if (playBtn) playBtn.style.display = isActualHost ? "none" : "inline-block";
+        if (leaveBtn) leaveBtn.style.display = isActualHost ? "none" : "inline-block";
 
         const participants = data.participants || {};
         const playersArray = Object.values(participants);
