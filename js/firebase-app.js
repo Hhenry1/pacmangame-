@@ -30,6 +30,22 @@ let isHost = false;
 let roomListenerUnsubscribe = null;
 let lastReportedScore = 0;
 
+function showToast(message) {
+    console.log("ARCADE NOTIFICATION:", message);
+    let toast = document.getElementById("arcade-toast");
+    if (!toast) {
+        toast = document.createElement("div");
+        toast.id = "arcade-toast";
+        toast.style.cssText = "position:fixed;top:20px;left:50%;transform:translateX(-50%);background:#0d0d0d;color:#fff200;border:3px solid #fff200;padding:16px 32px;border-radius:12px;font-size:18px;font-weight:bold;z-index:999999;box-shadow:0 0 30px rgba(255,242,0,0.8);text-align:center;max-width:85%;transition:all 0.3s ease;";
+        document.body.appendChild(toast);
+    }
+    toast.textContent = message;
+    toast.style.display = "block";
+    setTimeout(() => {
+        toast.style.display = "none";
+    }, 4500);
+}
+
 // Initialize when DOM is ready
 document.addEventListener("DOMContentLoaded", () => {
     setupUIListeners();
@@ -56,7 +72,7 @@ function setupUIListeners() {
     if (startTournamentBtn) {
         startTournamentBtn.addEventListener("click", () => {
             if (!currentUser) {
-                alert("Please sign in with Google first to start a tournament!");
+                showToast("Please sign in with Google first to start a tournament!");
                 return;
             }
             createTournamentRoom();
@@ -77,7 +93,7 @@ function setupUIListeners() {
     if (joinTournamentBtn) {
         joinTournamentBtn.addEventListener("click", () => {
             if (!currentUser) {
-                alert("Please sign in with Google first to join a tournament!");
+                showToast("Please sign in with Google first to join a tournament!");
                 return;
             }
             openJoinModal();
@@ -119,9 +135,7 @@ function setupUIListeners() {
     const endTournamentBtn = document.getElementById("btn-end-tournament");
     if (endTournamentBtn) {
         endTournamentBtn.addEventListener("click", () => {
-            if (confirm("Are you sure you want to end this tournament for all players?")) {
-                endTournamentRoom();
-            }
+            endTournamentRoom();
         });
     }
 }
@@ -168,7 +182,7 @@ async function handleGoogleSignIn() {
         await signInWithPopup(auth, provider);
     } catch (error) {
         console.error("Google Sign-In Error:", error);
-        alert("Authentication failed: " + error.message);
+        showToast("Authentication failed: " + error.message);
     }
 }
 
@@ -312,7 +326,7 @@ async function createTournamentRoom() {
         subscribeToRoomUpdates(roomCode);
     } catch (err) {
         console.error("Error creating room:", err);
-        alert("Failed to create tournament server room.");
+        showToast("Failed to create tournament server room.");
     }
 }
 
@@ -456,7 +470,7 @@ async function endTournamentRoom() {
         }
     }
     if (!code) {
-        alert("Error: No active room code found to end.");
+        showToast("Error: No active room code found to end.");
         return;
     }
     const roomRef = ref(db, `tournaments/${code}`);
@@ -469,7 +483,7 @@ async function endTournamentRoom() {
     currentRoomCode = null;
     isHost = false;
     closeLobbyModalOnly();
-    alert("🛑 Tournament ended! Room code invalidated.");
+    showToast("🛑 Tournament ended! Room code invalidated.");
 }
 
 function subscribeToRoomUpdates(code) {
@@ -480,7 +494,7 @@ function subscribeToRoomUpdates(code) {
     const roomRef = ref(db, `tournaments/${code}`);
     roomListenerUnsubscribe = onValue(roomRef, (snapshot) => {
         if (!snapshot.exists() || snapshot.val().status === "ended") {
-            alert("Tournament has been ended by the host or closed.");
+            showToast("Tournament has been ended by the host or closed.");
             currentRoomCode = null;
             isHost = false;
             closeLobbyModalOnly();
