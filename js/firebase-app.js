@@ -447,8 +447,19 @@ async function leaveTournamentLobby() {
 }
 
 async function endTournamentRoom() {
-    if (!currentRoomCode) return;
-    const roomRef = ref(db, `tournaments/${currentRoomCode}`);
+    let code = currentRoomCode;
+    if (!code) {
+        const codeElem = document.getElementById("lobby-room-code");
+        if (codeElem && codeElem.textContent && codeElem.textContent !== "-----") {
+            code = codeElem.textContent.trim().toUpperCase();
+            currentRoomCode = code;
+        }
+    }
+    if (!code) {
+        alert("Error: No active room code found to end.");
+        return;
+    }
+    const roomRef = ref(db, `tournaments/${code}`);
     try {
         await update(roomRef, { status: "ended" });
         await remove(roomRef);
@@ -550,10 +561,9 @@ function startGameStateTracker() {
     }, 1000);
 }
 
+window.endTournamentRoom = endTournamentRoom;
 window.confirmEndTournament = () => {
-    if (confirm("Are you sure you want to end this tournament for all players?")) {
-        endTournamentRoom();
-    }
+    endTournamentRoom();
 };
 window.leaveTournamentLobby = leaveTournamentLobby;
 window.startTournamentGame = () => {
