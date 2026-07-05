@@ -1,0 +1,385 @@
+#home h1 { 
+	text-align: center;
+	font-size: 78px;
+}
+#home h3 { 
+	position: absolute;
+	margin: auto;
+	left: 0px;
+	right: 0px;
+	bottom: 15px;
+	text-align: center;
+}
+#home h3 em { 
+	font-size: inherit;
+	font-style: inherit;
+	color: #fff200;
+}
+#canvas-home-title-pacman { 
+	background-color: #000;
+	position: absolute;
+	top: 10px;
+	left: 182px;
+	height: 100px;
+	width: 118px;
+}
+#canvas-panel-title-pacman { 
+	background-color: #000;
+	position: absolute;
+	top: 6px;
+	left: 47px;
+	height: 32px;
+	width: 38px;
+}
+
+#presentation { 
+	position: absolute;
+	margin: auto;
+	padding: 0px;
+	left: 0px;
+	right: 0px;
+	top: 200px;
+	width: 500px;
+	height: 250px;
+}
+#presentation-titles { 
+	position: absolute;
+	width: 360px;
+	height: 28px;
+	top: 10px;
+	left: 117px;
+	letter-spacing: 2px;
+	font-size: 20px;
+	text-transform: uppercase;
+	color: #fff;
+}
+#canvas-presentation-blinky, #canvas-presentation-pinky, #canvas-presentation-inky, #canvas-presentation-clyde { 
+	position: absolute;
+	width: 50px;
+	height: 50px;
+	left: 35px;
+}
+#canvas-presentation-blinky { 
+	top: 40px;
+}
+#canvas-presentation-pinky { 
+	top: 90px;
+}
+#canvas-presentation-inky { 
+	top: 140px;
+}
+#canvas-presentation-clyde { 
+	top: 190px;
+}
+#presentation-character-blinky, #presentation-character-pinky, #presentation-character-inky, #presentation-character-clyde, 
+#presentation-name-blinky, #presentation-name-pinky, #presentation-name-inky, #presentation-name-clyde { 
+	position: absolute;
+	width: 180px;
+	height: 28px;
+	left: 120px;
+	letter-spacing: 2px;
+	font-size: 20px;
+	text-transform: uppercase;
+}
+#presentation-name-blinky, #presentation-name-pinky, #presentation-name-inky, #presentation-name-clyde { 
+	left: 310px;
+	width: 180px;
+}
+#presentation-character-blinky, #presentation-name-blinky { 
+	top: 50px;
+	color: #ed1b24;
+}
+#presentation-character-pinky, #presentation-name-pinky { 
+	top: 100px;
+	color: #feaec9;
+}
+#presentation-character-inky, #presentation-name-inky { 
+	top: 150px;
+	color: #4adecb;
+}
+#presentation-character-clyde, #presentation-name-clyde { 
+	top: 200px;
+	color: #f99c00;
+}
+
+#trailer { 
+	position: absolute;
+	margin: auto;
+	padding: 0px;
+	left: 0px;
+	right: 0px;
+	bottom: 100px;
+	width: 500px;
+	height: 50px;
+}
+
+@media screen and (min-height:1200px), screen and (min-device-height : 1200px) { 
+
+}
+
+@media screen and (max-width:1024px), screen and (min-device-width : 768px) and (max-device-width : 1024px) { 
+
+	
+	#canvas-panel-title-pacman { 
+		left: 49px;
+		width: 42px;
+	}
+}
+
+@media screen and (max-height:640px), screen and (min-device-height : 480px) and (max-device-height : 640px) and (-webkit-device-pixel-ratio: 3) { 
+
+}
+@media screen and (max-height:480px), screen and (min-device-height : 320px) and (max-device-height : 480px) { 
+
+}
+
+/* NEW TOURNAMENT & AUTH STYLES */
+.auth-top-bar {
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    background: rgba(0, 0, 0, 0.85);
+    padding: 8px 16px;
+    border: 2px solid #fff200;
+    border-radius: 30px;
+    box-shadow: 0 0 15px rgba(255, 242, 0, 0.4);
+    font-family: monospace, sans-serif;
+}
+.btn-google {
+    background: #ffffff;
+    color: #333333;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-weight: bold;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+.btn-google:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
+}
+.user-profile {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: #fff;
+    font-size: 14px;
+}
+.user-profile img {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 2px solid #4adecb;
+}
+.btn-signout {
+    background: transparent;
+    color: #ff4757;
+    border: 1px solid #ff4757;
+    padding: 4px 10px;
+    border-radius: 12px;
+    cursor: pointer;
+    font-size: 12px;
+}
+.btn-signout:hover {
+    background: #ff4757;
+    color: #fff;
+}
+
+.action-buttons-group {
+    position: absolute;
+    top: 460px;
+    left: 0;
+    right: 0;
+    margin: auto;
+    width: 680px;
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    z-index: 100;
+}
+.arcade-btn {
+    font-family: monospace, sans-serif;
+    font-size: 14px;
+    padding: 14px 22px;
+    border-radius: 8px;
+    cursor: pointer;
+    text-transform: uppercase;
+    font-weight: bold;
+    transition: all 0.2s ease;
+    border: 3px solid #fff;
+    box-shadow: 0 4px 0 #000, 0 0 15px rgba(255, 255, 255, 0.3);
+}
+.arcade-btn:active {
+    transform: translateY(4px);
+    box-shadow: 0 0 0 #000;
+}
+.btn-tournament {
+    background: #ed1b24;
+    color: #fff;
+    border-color: #ff6b6b;
+    box-shadow: 0 4px 0 #8b0000, 0 0 15px rgba(237, 27, 36, 0.5);
+}
+.btn-tournament:hover {
+    background: #ff3838;
+    box-shadow: 0 4px 0 #8b0000, 0 0 25px rgba(237, 27, 36, 0.9);
+}
+.btn-play {
+    background: #fff200;
+    color: #000;
+    border-color: #ffff80;
+    box-shadow: 0 4px 0 #b3a900, 0 0 15px rgba(255, 242, 0, 0.5);
+}
+.btn-play:hover {
+    background: #ffff33;
+    box-shadow: 0 4px 0 #b3a900, 0 0 25px rgba(255, 242, 0, 0.9);
+}
+.btn-join {
+    background: #4adecb;
+    color: #000;
+    border-color: #80ffef;
+    box-shadow: 0 4px 0 #008b7d, 0 0 15px rgba(74, 222, 203, 0.5);
+}
+.btn-join:hover {
+    background: #6effef;
+    box-shadow: 0 4px 0 #008b7d, 0 0 25px rgba(74, 222, 203, 0.9);
+}
+
+/* TOURNAMENT LOBBY OVERLAY & MODALS */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.85);
+    z-index: 2000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    backdrop-filter: blur(5px);
+}
+.modal-overlay.hidden {
+    display: none !important;
+}
+.modal-card {
+    background: #111;
+    border: 4px solid #fff200;
+    border-radius: 16px;
+    padding: 30px;
+    width: 520px;
+    max-width: 90%;
+    color: #fff;
+    box-shadow: 0 0 30px rgba(255, 242, 0, 0.3);
+    text-align: center;
+    font-family: monospace, sans-serif;
+    position: relative;
+}
+.modal-card h2, .modal-card h3 {
+    color: #fff200;
+    margin-top: 0;
+    text-transform: uppercase;
+    font-size: 24px;
+    letter-spacing: 2px;
+}
+.modal-input {
+    background: #000;
+    border: 2px solid #4adecb;
+    color: #fff;
+    padding: 12px;
+    font-size: 20px;
+    text-align: center;
+    letter-spacing: 4px;
+    width: 80%;
+    margin: 20px 0;
+    border-radius: 8px;
+    text-transform: uppercase;
+}
+.modal-input:focus {
+    outline: none;
+    border-color: #fff200;
+    box-shadow: 0 0 10px #fff200;
+}
+.lobby-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+}
+.lobby-table th, .lobby-table td {
+    padding: 10px;
+    border-bottom: 1px solid #333;
+    text-align: left;
+}
+.lobby-table th {
+    color: #4adecb;
+    text-transform: uppercase;
+}
+.room-code-badge {
+    background: #ed1b24;
+    color: #fff;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 18px;
+    font-weight: bold;
+    display: inline-block;
+    margin: 10px 0;
+    border: 2px solid #fff;
+}
+.btn-close-modal {
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    background: none;
+    border: none;
+    color: #fff;
+    font-size: 28px;
+    cursor: pointer;
+}
+.error-msg {
+    color: #ff4757;
+    margin: 10px 0;
+    font-weight: bold;
+}
+.global-leaderboard-section {
+    position: absolute;
+    top: 80px;
+    left: 20px;
+    width: 260px;
+    background: rgba(0, 0, 0, 0.85);
+    border: 2px solid #4adecb;
+    border-radius: 12px;
+    padding: 15px;
+    color: #fff;
+    box-shadow: 0 0 15px rgba(74, 222, 203, 0.3);
+    z-index: 90;
+    font-size: 13px;
+    font-family: monospace, sans-serif;
+}
+.global-leaderboard-section h4 {
+    margin: 0 0 10px 0;
+    color: #4adecb;
+    text-align: center;
+    font-size: 14px;
+    text-transform: uppercase;
+    border-bottom: 1px solid #333;
+    padding-bottom: 8px;
+}
+.mini-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+.mini-table td {
+    padding: 6px 0;
+    border-bottom: 1px dotted #333;
+}
+.mini-table tr:nth-child(1) td { color: #fff200; font-weight: bold; }
+.mini-table tr:nth-child(2) td { color: #cccccc; }
+.mini-table tr:nth-child(3) td { color: #cd7f32; }
