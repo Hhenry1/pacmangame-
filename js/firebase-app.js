@@ -140,7 +140,7 @@ function setupAuth() {
         if (user) {
             currentUser = user;
             if (signinBtn) {
-                signinBtn.style.display = "none";
+                signinBtn.style.setProperty("display", "none", "important");
                 signinBtn.classList.add("hidden");
             }
             if (userProfile) userProfile.style.display = "flex";
@@ -154,7 +154,7 @@ function setupAuth() {
             currentUser = null;
             userHighScore = 0;
             if (signinBtn) {
-                signinBtn.style.display = "inline-flex";
+                signinBtn.style.setProperty("display", "inline-flex", "important");
                 signinBtn.classList.remove("hidden");
             }
             if (userProfile) userProfile.style.display = "none";
@@ -549,3 +549,16 @@ function startGameStateTracker() {
         }
     }, 1000);
 }
+
+window.confirmEndTournament = () => {
+    if (confirm("Are you sure you want to end this tournament for all players?")) {
+        endTournamentRoom();
+    }
+};
+window.leaveTournamentLobby = leaveTournamentLobby;
+window.startTournamentGame = () => {
+    closeLobbyModalOnly();
+    if (typeof window.initGame === "function") {
+        window.initGame(true);
+    }
+};

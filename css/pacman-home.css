@@ -165,7 +165,7 @@
     text-shadow: none !important;
     transition: transform 0.2s, box-shadow 0.2s;
 }
-.btn-google.hidden {
+.btn-google.hidden, #google-signin-btn.hidden, #google-signin-btn[style*="none"] {
     display: none !important;
 }
 .btn-google span, .btn-google * {
