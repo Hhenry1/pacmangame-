@@ -25,8 +25,8 @@
 		<meta name="keywords" content="pacman, pac-man, pac-man online, pacman online, online, online games, games, free, puzzle, harrison henry, tournament, html, html5, css, css3, javascript, jquery, rwd, responsive, responsive web design, responsive web, web design, canvas, draw" />
 
 		<link rel="icon" type="image/png" href="favicon.png" />
-		<link rel="stylesheet" type="text/css" href="css/pacman.css?v=202607052018" />
-		<link rel="stylesheet" type="text/css" href="css/pacman-home.css?v=202607052018" />
+		<link rel="stylesheet" type="text/css" href="css/pacman.css?v=202607052040" />
+		<link rel="stylesheet" type="text/css" href="css/pacman-home.css?v=202607052040" />
 	
 		<script type="text/javascript" src="js/jquery.js"></script>
 		<!--<script type="text/javascript" src="js/jquery-mobile.js"></script>-->
@@ -175,7 +175,7 @@
 		</script>
 	
 		<title>Harrison Henry - Pac-Man Tournament Edition</title>
-		<script type="module" src="js/firebase-app.js?v=202607052018"></script>
+		<script type="module" src="js/firebase-app.js?v=202607052040"></script>
 	</head>
 		
 	<body>
@@ -246,6 +246,7 @@
 			<canvas id="canvas-panel-title-pacman"></canvas>
 			<div id="score"><h2>1UP</h2><span>00</span></div>
 			<div id="highscore"><h2>High Score</h2><span>00</span></div>
+			<div id="tournament-game-timer" style="position:absolute;top:15px;right:25px;display:none;background:#0d0d0d;border:2px solid #ff4d4d;padding:8px 16px;border-radius:10px;color:#ff4d4d;font-weight:bold;font-size:18px;z-index:100;box-shadow:0 0 15px rgba(255,77,77,0.5);">⏱️ TOURNAMENT: <span id="game-timer-badge">10:00</span></div>
 			<div id="board">
 				<canvas id="canvas-board"></canvas>
 				<canvas id="canvas-paths"></canvas>
@@ -296,6 +297,7 @@
 					<div style="font-size:18px;margin-bottom:5px;">
 						<span>SERVER ROOM CODE: </span>
 						<span id="lobby-room-code" class="room-code-badge" style="font-size:24px;padding:6px 16px;background:#111;border:2px solid #4adecb;border-radius:8px;color:#4adecb;">-----</span>
+						<span style="margin-left:20px;font-weight:bold;color:#ff4d4d;font-size:20px;">⏱️ TIME LEFT: <span id="lobby-timer-badge" style="background:#220000;padding:4px 10px;border-radius:6px;border:1px solid #ff4d4d;">10:00</span></span>
 					</div>
 					<p style="color:#cccccc;font-size:14px;margin:0;">Share this code with friends. Strict Limit: 10 Players Max.</p>
 				</div>
@@ -328,9 +330,28 @@
 					<button id="leave-lobby-btn" class="arcade-btn btn-join" onclick="if(window.leaveTournamentLobby) window.leaveTournamentLobby();" style="display:none;max-width:250px;font-size:18px;padding:15px;background:#444;border-color:#777;">🚪 Leave Room</button>
 					<button id="btn-end-tournament" class="arcade-btn btn-tournament" onclick="if(window.endTournamentRoom) { window.endTournamentRoom(); } else if(window.confirmEndTournament) { window.confirmEndTournament(); }" style="display:none;max-width:300px;font-size:18px;padding:15px;background:#ff3333;border-color:#ff9999;">🛑 End Tournament (Host)</button>
 				</div>
+		<!-- MODAL: TOURNAMENT WINNER ANNOUNCEMENT -->
+		<div id="winner-modal" class="modal-overlay hidden" style="z-index:9999999;">
+			<div class="modal-card" style="width:90%;max-width:650px;text-align:center;border:5px solid #fff200;box-shadow:0 0 60px rgba(255,242,0,0.8);background:#0d0d0d;padding:40px;">
+				<h2 style="font-size:42px;margin-bottom:15px;color:#fff200;text-shadow:0 0 20px rgba(255,242,0,0.8);letter-spacing:2px;">🏆 TOURNAMENT OVER! 🏆</h2>
+				<p style="color:#cccccc;font-size:18px;margin-bottom:25px;">The 10-minute tournament clock has expired or the host has closed the session! Here are the official results:</p>
+				
+				<div style="background:#111;border:3px solid #4adecb;border-radius:15px;padding:25px;margin-bottom:30px;box-shadow:0 0 25px rgba(74,222,203,0.3);">
+					<div style="font-size:16px;color:#4adecb;letter-spacing:3px;font-weight:bold;margin-bottom:10px;">👑 OFFICIAL WINNER 👑</div>
+					<div id="winner-name-display" style="font-size:36px;color:#ffffff;font-weight:bold;text-shadow:0 0 10px #ffffff;margin-bottom:5px;">Harrison Henry</div>
+					<div id="winner-score-display" style="font-size:30px;color:#fff200;font-family:monospace;font-weight:bold;">5,400 PTS</div>
+				</div>
+
+				<div style="margin-bottom:30px;max-height:200px;overflow-y:auto;background:#050505;border:1px solid #333;border-radius:10px;padding:15px;text-align:left;">
+					<h4 style="color:#aaa;margin-top:0;margin-bottom:10px;text-align:center;border-bottom:1px solid #222;padding-bottom:5px;">FINAL LEADERBOARD STANDINGS</h4>
+					<table style="width:100%;border-collapse:collapse;color:#fff;font-size:16px;">
+						<tbody id="winner-leaderboard-body"></tbody>
+					</table>
+				</div>
+
+				<button id="btn-close-winner-modal" class="arcade-btn btn-tournament" onclick="if(window.closeWinnerModal) window.closeWinnerModal();" style="width:100%;font-size:20px;padding:18px;">🎉 BACK TO HOME / CLAIM GLORY</button>
 			</div>
 		</div>
-	
+
 	</body>
-	
 </html>

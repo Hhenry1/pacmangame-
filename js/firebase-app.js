@@ -29,6 +29,10 @@ let currentRoomCode = null;
 let isHost = false;
 let roomListenerUnsubscribe = null;
 let lastReportedScore = 0;
+let roomHighScore = 0;
+let currentRoomEndTime = 0;
+let lastKnownPlayersArray = [];
+let tournamentEnding = false;
 
 function showToast(message) {
     console.log("ARCADE NOTIFICATION:", message);
@@ -299,6 +303,9 @@ async function createTournamentRoom() {
     const roomCode = generateRoomCode();
     currentRoomCode = roomCode;
     isHost = true;
+    roomHighScore = 0;
+    tournamentEnding = false;
+    lastKnownPlayersArray = [];
 
     const roomRef = ref(db, `tournaments/${roomCode}`);
     const hostData = {
@@ -309,6 +316,7 @@ async function createTournamentRoom() {
         playerCount: 1,
         maxPlayers: 10,
         createdAt: Date.now(),
+        endTime: Date.now() + (10 * 60 * 1000),
         participants: {
             [currentUser.uid]: {
                 uid: currentUser.uid,
@@ -396,6 +404,9 @@ async function joinTournamentRoom(code) {
 
         currentRoomCode = code;
         isHost = (data.hostId === currentUser.uid);
+        roomHighScore = 0;
+        tournamentEnding = false;
+        lastKnownPlayersArray = [];
         closeJoinModal();
         openLobbyModal(code, isHost);
         subscribeToRoomUpdates(code);
@@ -460,7 +471,7 @@ async function leaveTournamentLobby() {
     closeLobbyModalOnly();
 }
 
-async function endTournamentRoom() {
+async function endTournamentRoom(timeExpired = false) {
     let code = currentRoomCode;
     if (!code) {
         const codeElem = document.getElementById("lobby-room-code");
@@ -470,20 +481,90 @@ async function endTournamentRoom() {
         }
     }
     if (!code) {
-        showToast("Error: No active room code found to end.");
+        if (!timeExpired) showToast("Error: No active room code found to end.");
         return;
     }
     const roomRef = ref(db, `tournaments/${code}`);
     try {
         await update(roomRef, { status: "ended" });
-        await remove(roomRef);
+        setTimeout(() => remove(roomRef).catch(() => {}), 10000);
     } catch (err) {
         console.error("Error ending tournament:", err);
     }
+}
+
+function showWinnerModal(players) {
+    if (tournamentEnding && document.getElementById("winner-modal") && !document.getElementById("winner-modal").classList.contains("hidden")) {
+        return;
+    }
+    tournamentEnding = true;
+
+    const lobbyModal = document.getElementById("lobby-modal");
+    if (lobbyModal) {
+        lobbyModal.classList.add("hidden");
+        lobbyModal.style.setProperty("display", "none", "important");
+    }
+    const timerElem = document.getElementById("tournament-game-timer");
+    if (timerElem) timerElem.style.display = "none";
+
+    const sorted = (players || []).slice().sort((a, b) => (b.score || 0) - (a.score || 0));
+    const winner = sorted.length > 0 ? sorted[0] : { displayName: "No Players", score: 0 };
+
+    const nameElem = document.getElementById("winner-name-display");
+    const scoreElem = document.getElementById("winner-score-display");
+    if (nameElem) nameElem.textContent = winner.displayName || "Player";
+    if (scoreElem) scoreElem.textContent = `${(winner.score || 0).toLocaleString()} PTS`;
+
+    const tbody = document.getElementById("winner-leaderboard-body");
+    if (tbody) {
+        if (sorted.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="3" style="padding:10px;text-align:center;">No participant scores recorded.</td></tr>`;
+        } else {
+            tbody.innerHTML = sorted.map((p, idx) => `
+                <tr style="border-bottom:1px solid #222;">
+                    <td style="padding:8px;color:#ff4d4d;font-weight:bold;">#${idx + 1}</td>
+                    <td style="padding:8px;font-weight:bold;">${p.displayName || "Player"} ${idx === 0 ? '👑' : ''}</td>
+                    <td style="padding:8px;text-align:right;font-family:monospace;color:#fff200;font-weight:bold;">${(p.score || 0).toLocaleString()} PTS</td>
+                </tr>
+            `).join("");
+        }
+    }
+
+    if (typeof window.pauseGame === "function" && typeof window.HOME === "boolean" && window.HOME === false) {
+        window.pauseGame();
+    }
+
+    const winnerModal = document.getElementById("winner-modal");
+    if (winnerModal) {
+        winnerModal.classList.remove("hidden");
+        winnerModal.style.setProperty("display", "flex", "important");
+    }
+    showToast(`🏆 TOURNAMENT OVER! Winner: ${winner.displayName || "Player"}!`);
+}
+
+function closeWinnerModal() {
+    const winnerModal = document.getElementById("winner-modal");
+    if (winnerModal) {
+        winnerModal.classList.add("hidden");
+        winnerModal.style.setProperty("display", "none", "important");
+    }
     currentRoomCode = null;
     isHost = false;
-    closeLobbyModalOnly();
-    showToast("🛑 Tournament ended! Room code invalidated.");
+    roomHighScore = 0;
+    currentRoomEndTime = 0;
+    lastKnownPlayersArray = [];
+    tournamentEnding = false;
+    if (roomListenerUnsubscribe) {
+        roomListenerUnsubscribe();
+        roomListenerUnsubscribe = null;
+    }
+    const timerElem = document.getElementById("tournament-game-timer");
+    if (timerElem) timerElem.style.display = "none";
+    
+    if (typeof window.initHome === "function") {
+        window.initHome();
+    }
+    showToast("🛑 Tournament room code invalidated. Ready for a new game!");
 }
 
 function subscribeToRoomUpdates(code) {
@@ -494,10 +575,7 @@ function subscribeToRoomUpdates(code) {
     const roomRef = ref(db, `tournaments/${code}`);
     roomListenerUnsubscribe = onValue(roomRef, (snapshot) => {
         if (!snapshot.exists() || snapshot.val().status === "ended") {
-            showToast("Tournament has been ended by the host or closed.");
-            currentRoomCode = null;
-            isHost = false;
-            closeLobbyModalOnly();
+            showWinnerModal(lastKnownPlayersArray);
             if (roomListenerUnsubscribe) {
                 roomListenerUnsubscribe();
                 roomListenerUnsubscribe = null;
@@ -506,6 +584,7 @@ function subscribeToRoomUpdates(code) {
         }
 
         const data = snapshot.val();
+        currentRoomEndTime = data.endTime || 0;
         const isActualHost = (currentUser && currentUser.uid === data.hostId);
         const endBtn = document.getElementById("btn-end-tournament");
         const playBtn = document.getElementById("btn-play-tournament-match");
@@ -516,6 +595,7 @@ function subscribeToRoomUpdates(code) {
 
         const participants = data.participants || {};
         const playersArray = Object.values(participants);
+        lastKnownPlayersArray = playersArray;
         
         // Update player count badge
         const countElem = document.getElementById("lobby-player-count");
@@ -561,16 +641,56 @@ function startGameStateTracker() {
                 updateHighScoreInFirebase(lastReportedScore);
             }
 
-            // Update room live score if in tournament
+            // Update room live score if in tournament (keeping tournament HIGHEST score!)
             if (currentRoomCode && currentUser) {
-                const userScoreRef = ref(db, `tournaments/${currentRoomCode}/participants/${currentUser.uid}/score`);
-                set(userScoreRef, lastReportedScore).catch(err => console.error("Error updating room score:", err));
+                if (lastReportedScore > roomHighScore) {
+                    roomHighScore = lastReportedScore;
+                    const userScoreRef = ref(db, `tournaments/${currentRoomCode}/participants/${currentUser.uid}/score`);
+                    set(userScoreRef, roomHighScore).catch(err => console.error("Error updating room score:", err));
+                }
             }
         }
 
-        // If new game started, reset reported score
+        // If new game started, reset reported score (but NOT roomHighScore!)
         if (typeof window.SCORE === "number" && window.SCORE === 0 && lastReportedScore > 0) {
             lastReportedScore = 0;
+        }
+
+        // Tournament Countdown Timer Check
+        if (currentRoomCode && currentRoomEndTime > 0) {
+            const remainingMs = currentRoomEndTime - Date.now();
+            const lobbyBadge = document.getElementById("lobby-timer-badge");
+            const gameBadge = document.getElementById("game-timer-badge");
+            const gameTimerBox = document.getElementById("tournament-game-timer");
+
+            if (remainingMs > 0) {
+                const totalSecs = Math.floor(remainingMs / 1000);
+                const mins = Math.floor(totalSecs / 60);
+                const secs = totalSecs % 60;
+                const timeStr = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+                if (lobbyBadge) lobbyBadge.textContent = timeStr;
+                if (gameBadge) gameBadge.textContent = timeStr;
+                if (gameTimerBox && typeof window.HOME === "boolean" && window.HOME === false) {
+                    gameTimerBox.style.display = "block";
+                } else if (gameTimerBox) {
+                    gameTimerBox.style.display = "none";
+                }
+            } else {
+                // Time expired! 10 minutes passed!
+                if (lobbyBadge) lobbyBadge.textContent = "00:00";
+                if (gameBadge) gameBadge.textContent = "00:00";
+                if (!tournamentEnding) {
+                    tournamentEnding = true;
+                    if (isHost) {
+                        endTournamentRoom(true);
+                    } else {
+                        showWinnerModal(lastKnownPlayersArray);
+                    }
+                }
+            }
+        } else {
+            const gameTimerBox = document.getElementById("tournament-game-timer");
+            if (gameTimerBox) gameTimerBox.style.display = "none";
         }
     }, 1000);
 }
@@ -586,3 +706,4 @@ window.startTournamentGame = () => {
         window.initGame(true);
     }
 };
+window.closeWinnerModal = closeWinnerModal;

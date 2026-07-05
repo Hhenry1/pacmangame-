@@ -301,6 +301,13 @@ function gameover() {
 	LIFES = 2;
 	LEVEL = 1;
 	SCORE = 0;
+
+	setTimeout(function() {
+		if (typeof window.HOME === "boolean" && window.HOME === true) return;
+		if (typeof window.GAMEOVER === "boolean" && window.GAMEOVER === true) {
+			initGame(true);
+		}
+	}, 2500);
 }
 
 function message(m) { 
